@@ -1,5 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
 import { json } from 'stream/consumers';
+export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 
 /**
  * Read environment variables from file.
@@ -117,8 +119,31 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
       {
+        name: 'setup',
+        testMatch: /global.setup\.ts/,
+      },
+      {
         name: 'chromium',
         use: { ...devices['Desktop Chrome'] },
+        dependencies: ['setup'],
+      },
+      {
+        name: 'logged in chromium',
+        testMatch: '**/*.loggedin.spec.ts',
+        dependencies: ['setup'],
+        use: {
+          ...devices['Desktop Chrome'],
+          storageState: STORAGE_STATE,
+        },
+      },
+      {
+        name: 'logged out chromium',
+        use: { ...devices['Desktop Chrome'] },
+        testIgnore: ['**/*loggedin.spec.ts']
+      },
+      {
+        name: 'cleanup db',
+        testMatch: /global\.teardown\.ts/,
       },
       {
         name: 'firefox',
