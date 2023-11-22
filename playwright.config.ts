@@ -58,7 +58,7 @@ export default defineConfig({
     // Emulates the user locale.
     locale: 'en-GB',
     // Grants specified permissions to the browser context.
-    permissions: ['geolocation'],
+    permissions: ['geolocation','Notification'],
     // Emulates the user timezone.
     timezoneId: 'Europe/Paris',
     // Create a context with options inherited from the config
@@ -81,16 +81,16 @@ export default defineConfig({
     launchOptions: {
       slowMo: 50,
     },
-        // Whether to automatically download all the attachments.
-        acceptDownloads: false,
-        // An object containing additional HTTP headers to be sent with every request.
-        extraHTTPHeaders: {
-          'X-My-Header': 'value',
+     // Whether to automatically download all the attachments.
+    acceptDownloads: false,
+     // An object containing additional HTTP headers to be sent with every request.
+     extraHTTPHeaders: {
+     'X-My-Header': 'value',
         },
-        // Credentials for HTTP authentication.
-        httpCredentials: {
-          username: 'user',
-          password: 'pass',
+     // Credentials for HTTP authentication.
+     httpCredentials: {
+     username: 'user',
+     password: 'pass',
         },
         // Whether to ignore HTTPS errors during navigation.
         ignoreHTTPSErrors: true,
@@ -131,7 +131,11 @@ export default defineConfig({
       /* Test against mobile viewports. */
       {
         name: 'Mobile Chrome',
-        use: { ...devices['Pixel 5'] },
+        use: { ...devices['Pixel 5'],
+        isMobile:false,        
+        // It is important to define the `viewport` property after destructuring `devices`, 
+        // since devices also define the `viewport` for that device.
+        viewport: { width: 1280, height: 720 }, },
       },
       {
         name: 'Mobile Safari',
