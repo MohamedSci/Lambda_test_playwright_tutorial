@@ -12,26 +12,34 @@ export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
+// Read from default ".env" file.
+dotenv.config();
+// Alternatively, read from "../my.env" file.
+dotenv.config({ path: path.resolve(__dirname, '..', 'my.env') });
+
 export default defineConfig({
+  timeout: 60000, // Timeout is shared between all tests.
   testDir: './tests',
   testMatch: ["tests/first_test.test.ts"],
-        /* Run tests in files in parallel */
-        fullyParallel: true,
-        /* Fail the build on CI if you accidentally left test.only in the source code. */
-        forbidOnly: !!process.env.CI,
-        /* Retry on CI only */
-        retries: process.env.CI ? 2 : 0,
-        /* Opt out of parallel tests on CI. */
-        workers: process.env.CI ? 1 : undefined,
-        // Folder for test artifacts such as screenshots, videos, traces, etc.
-        outputDir: 'test-results',
-        // path to the global setup files.
-        globalSetup: require.resolve('./global-setup'),
-        // path to the global teardown files.
-        globalTeardown: require.resolve('./global-teardown'),
-        // Each test is given 30 seconds.
-        timeout: 30000,
+  /* Run tests in files in parallel */
+  fullyParallel: true,
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  forbidOnly: !!process.env.CI,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
+  /* Opt out of parallel tests on CI. Limit the number of workers on CI, use default locally*/
+  workers: process.env.CI ? 2 : undefined,
+  // Folder for test artifacts such as screenshots, videos, traces, etc.
+  outputDir: 'test-results',
+  // path to the global setup files.
+  globalSetup: require.resolve('./global-setup'),
+  // path to the global teardown files.
+  globalTeardown: require.resolve('./global-teardown'),
+  // Each test is given 30 seconds.
+  timeout: 30000,
   // lets you write better assertions for end-to-end testing
+  // Limit the number of failures on CI to save resources
+    // maxFailures: process.env.CI ? 10 : undefined,
   expect: {
     // Maximum time expect() should wait for the condition to be met.
     timeout: 5000,
@@ -48,7 +56,8 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://127.0.0.1:3000',
+    baseURL: process.env.STAGING === '1' ? 'http://127.0.0.1:3000' : 'http://example.test/',
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     headless: false,
@@ -105,10 +114,14 @@ export default defineConfig({
         },
   },
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter:[
+  reporter:
+  [
     ["dot"],
     ["json",{outputFile:"jsonOutputFile/outputFile.json"}],
-    ["html",{open:'never'}]
+    ["html",{open:'never',attachmentsBaseURL: 'https://external-storage.com/'}],
+    ['list', { printSteps: true }],
+    ['blob', { outputDir: 'my-report' }],
+    ['junit', { outputFile: 'results.xml' }]
     ],
   /* Run your local dev server before starting the tests */
   webServer: {
@@ -126,6 +139,16 @@ export default defineConfig({
         name: 'chromium',
         use: { ...devices['Desktop Chrome'] },
         dependencies: ['setup'],
+      },
+      {
+        name: 'Smoke',
+        testMatch: /.*smoke.spec.ts/,
+        retries: 0,
+      },
+      {
+        name: 'Default',
+        testIgnore: /.*smoke.spec.ts/,
+        retries: 2,
       },
       {
         name: 'logged in chromium',
@@ -152,6 +175,7 @@ export default defineConfig({
       {
         name: 'webkit',
         use: { ...devices['Desktop Safari'] },
+        fullyParallel: true,
       },
       /* Test against mobile viewports. */
       {
@@ -165,6 +189,7 @@ export default defineConfig({
       {
         name: 'Mobile Safari',
         use: { ...devices['iPhone 12'] },
+        retries:2
       },
       /* Test against branded browsers. */
       {

@@ -1,6 +1,6 @@
 import { test as setup, expect } from '@playwright/test';
 import { STORAGE_STATE } from '../playwright.config';
-
+// Used For some project
 setup('do login', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('User Name').fill('user');
