@@ -14,7 +14,6 @@ export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
  */
 // Read from default ".env" file.
 // Alternatively, read from "../my.env" file.
-dotenv.config({ path: path.resolve(__dirname, '..', 'my.env') });
 
 export default defineConfig({
     // Each test is given 30 seconds.
@@ -54,6 +53,7 @@ export default defineConfig({
   },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    // Maximum time each action such as `click()` can take. Defaults to 0 (no limit).
     actionTimeout: 10 * 1000,
     navigationTimeout: 30 * 1000,
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -78,8 +78,6 @@ export default defineConfig({
     viewport: { width: 1280, height: 720 },
     // Change the default data-testid attribute.
     testIdAttribute: 'pw-test-id',
-     // Maximum time each action such as `click()` can take. Defaults to 0 (no limit).
-     actionTimeout: 0,
      // Name of the browser that runs tests. For example `chromium`, `firefox`, `webkit`.
      browserName: 'chromium',
      // Toggles bypassing Content-Security-Policy.
