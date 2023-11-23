@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+    "target": "ESNext",
+     "module": "commonjs",
+      "moduleResolution": "Node",
+      "sourceMap": true,
+      "outDir": "../tests-out",  
+      "baseUrl": ".", // This must be specified if "paths" is.
+      "paths": {
+        "@myhelper/*": ["packages/myhelper/*"] // This mapping is relative to "baseUrl".
+      }
+    }
+  }

@@ -13,12 +13,13 @@ export const STORAGE_STATE = path.join(__dirname, 'playwright/.auth/user.json');
  * See https://playwright.dev/docs/test-configuration.
  */
 // Read from default ".env" file.
-dotenv.config();
 // Alternatively, read from "../my.env" file.
 dotenv.config({ path: path.resolve(__dirname, '..', 'my.env') });
 
 export default defineConfig({
+    // Each test is given 30 seconds.
   timeout: 60000, // Timeout is shared between all tests.
+  globalTimeout: 60 * 60 * 1000,//This prevents excess resource usage when everything went wrong. 
   testDir: './tests',
   testMatch: ["tests/first_test.test.ts"],
   /* Run tests in files in parallel */
@@ -35,8 +36,6 @@ export default defineConfig({
   globalSetup: require.resolve('./global-setup'),
   // path to the global teardown files.
   globalTeardown: require.resolve('./global-teardown'),
-  // Each test is given 30 seconds.
-  timeout: 30000,
   // lets you write better assertions for end-to-end testing
   // Limit the number of failures on CI to save resources
     // maxFailures: process.env.CI ? 10 : undefined,
@@ -55,9 +54,10 @@ export default defineConfig({
   },
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
+    actionTimeout: 10 * 1000,
+    navigationTimeout: 30 * 1000,
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.STAGING === '1' ? 'http://127.0.0.1:3000' : 'http://example.test/',
-
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     headless: false,
@@ -124,11 +124,22 @@ export default defineConfig({
     ['junit', { outputFile: 'results.xml' }]
     ],
   /* Run your local dev server before starting the tests */
-  webServer: {
+  webServer: [{
     command: 'npm run start',
+    // This URL should be passed also to the baseURL in use: {} Section.
     url: 'http://127.0.0.1:3000',
     reuseExistingServer: !process.env.CI,
+    stdout: 'pipe',
+    stderr: 'pipe',
+    timeout: 120 * 1000,
   },
+  {
+    command: 'npm run backend',
+    url: 'http://127.0.0.1:3333',
+    timeout: 120 * 1000,
+    reuseExistingServer: !process.env.CI,
+  }
+],
     /* Configure projects for major browsers */
     projects: [
       {

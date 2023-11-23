@@ -4,6 +4,7 @@
   "description": "The first demo from youtube",
   "main": "index.js",
   "scripts": {
+    "pretest": "tsc --incremental -p tests/tsconfig.json",
     "test": "npx playwright test"
   },
   "keywords": [],
@@ -12,5 +13,9 @@
   "devDependencies": {
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.9.2"
+  },
+  "dependencies": {
+    "csv-parse": "^5.5.2",
+    "dotenv-extended": "^2.9.0"
   }
 }
